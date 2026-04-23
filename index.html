@@ -213,7 +213,7 @@ function fin(){
     '</div></div>'+
     '<button class="sb-re" onclick="go()">🔄 重新测试</button>';
   sw('s2');
-  if (typeof window.resetAdLock === 'function') window.resetAdLock();
+  if (typeof window.resetAdLock === 'function') window.resetAdLock(true);
 }
 function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)}
 function saveImg(){
@@ -285,6 +285,7 @@ const REWARD_CFG={
   readyRetryTimeout:12000,
   readyRetryInterval:300,
   callbackTimeout:8000,
+  showCallbackTimeout:10000,
   preloadCallbackTimeout:15000,
   preloadMaxAge:180000,
   adRequest:{
@@ -578,7 +579,13 @@ async function rwShowWithCachedOrRequest(){
   }
   if(!payload)throw rwError('REWARD_PAYLOAD_MISSING','缺少可用 payload',{stage:'connectVideo_payload'});
   try{
-    await rwCallHandler('connectVideo',payload);
+    const showResp=await rwCallHandler('connectVideo',payload,{
+      timeout:REWARD_CFG.showCallbackTimeout||REWARD_CFG.callbackTimeout,
+      allowTimeout:true
+    });
+    if(showResp&&showResp.__timeout){
+      rwLog('connectVideo callback timeout, treat as launched');
+    }
   }catch(e){
     throw rwStageError('connectVideo_call',e,'REWARD_SHOW_FAILED','connectVideo 调用失败');
   }
@@ -592,7 +599,7 @@ async function initRewardOnEnter(){
     await rwRequestAndPreload();
     REWARD_STATE.initDone=true;
     rwLog('init preload done');
-    if(typeof window.resetAdLock==='function')window.resetAdLock();
+    if(typeof window.resetAdLock==='function')window.resetAdLock(false);
   }catch(e){
     const stage=e&&e.detail&&e.detail.stage?e.detail.stage:'';
     const desc=document.getElementById('unlockDesc');
@@ -699,16 +706,34 @@ async function unlockByAd(){
   }
 }
 
-function resetAdLock(){
-  stopUnlockCountdown();
-  REWARD_STATE.unlocking=false;
-  REWARD_STATE.unlocked=false;
-  REWARD_STATE.watchStartedAt=0;
+function resetAdLock(forceReset){
+  const force=!!forceReset;
   const wrap=document.getElementById('unlockWrap');
   const btn=document.getElementById('unlockBtn');
   const desc=document.getElementById('unlockDesc');
   const count=document.getElementById('unlockCount');
   if(!wrap)return;
+
+  if(!force){
+    if(REWARD_STATE.unlocked){
+      wrap.classList.add('unlocked');
+      if(desc)desc.textContent='已解锁全部内容';
+      if(count)count.textContent='';
+      if(btn){btn.disabled=true;btn.textContent='已解锁';}
+      return;
+    }
+    if(REWARD_STATE.unlocking){
+      wrap.classList.remove('unlocked');
+      refreshUnlockProgressUI();
+      return;
+    }
+  }
+
+  stopUnlockCountdown();
+  REWARD_STATE.unlocking=false;
+  REWARD_STATE.unlocked=false;
+  REWARD_STATE.watchStartedAt=0;
+
   wrap.classList.remove('unlocked');
   if(btn){btn.disabled=false;btn.textContent='看激励视频解锁';}
   if(desc){
