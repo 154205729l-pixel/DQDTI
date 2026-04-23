@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DQDTI - 球星人格测试</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#fdf6ec;color:#3a2f2f;min-height:100vh;min-height:100dvh;overflow-x:hidden}
+.ct{max-width:500px;margin:0 auto;padding:16px;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1}
+.sc{display:none;animation:fi .6s ease}.sc.on{display:flex;flex-direction:column;align-items:center}
+@keyframes fi{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fl{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(3deg)}}
+.bg-doodle{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.05}
+/* logo */
+.logo{display:flex;align-items:center;gap:8px;margin-bottom:16px;justify-content:center}
+.logo img{width:40px;height:40px;border-radius:10px}
+.logo-t{font-size:17px;font-weight:800;color:#2E7D32;letter-spacing:1px}
+.logo-t small{color:#8a7a6a;font-weight:400;font-size:10px;display:block;letter-spacing:0}
+/* welcome */
+.hero{font-size:64px;margin-bottom:6px;animation:fl 3s ease-in-out infinite;filter:drop-shadow(2px 4px 0 rgba(0,0,0,.1))}
+h1{font-size:28px;color:#2E7D32;font-weight:900;letter-spacing:3px;text-shadow:2px 2px 0 rgba(76,175,80,.12)}
+.ver{font-size:16px;color:#ff7043;font-weight:700;margin:4px 0 10px;letter-spacing:3px}
+.sub{color:#7a6a5a;font-size:13px;text-align:center;line-height:2;margin-bottom:24px}
+.btn{background:#4CAF50;color:#fff;border:3px solid #2E7D32;padding:13px 48px;border-radius:50px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:3px;box-shadow:4px 4px 0 #2E7D32;-webkit-appearance:none}
+.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #2E7D32}
+.cnt{color:#baa;font-size:11px;margin-top:18px}
+/* quiz */
+.bar{width:100%;height:6px;background:#e8ddd0;border-radius:20px;margin-bottom:20px;overflow:hidden;border:1.5px solid #d4c4b0}
+.bar-f{height:100%;background:linear-gradient(90deg,#4CAF50,#81C784);transition:width .4s;border-radius:20px}
+.qn{color:#4CAF50;font-size:12px;margin-bottom:6px;letter-spacing:2px;font-weight:700}
+.qt{font-size:17px;text-align:center;line-height:1.7;margin-bottom:20px;font-weight:600;color:#3a2f2f;padding:14px 12px;background:#fff;border-radius:18px;border:2px dashed #d4c4b0;position:relative}
+.qt::before{content:'Q';position:absolute;top:-11px;left:16px;background:#ff7043;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid #e64a19}
+.ops{width:100%;display:flex;flex-direction:column;gap:8px}
+.op{background:#fff;border:2px solid #e0d5c8;border-radius:16px;padding:12px 14px 12px 44px;cursor:pointer;transition:all .2s;font-size:13.5px;line-height:1.6;text-align:left;position:relative;box-shadow:2px 2px 0 #e0d5c8}
+.op:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #c8e6c9;border-color:#4CAF50;background:#f0faf0}
+.ol{position:absolute;left:0;top:0;bottom:0;width:38px;display:flex;align-items:center;justify-content:center;background:#f0faf0;font-weight:700;color:#4CAF50;font-size:12px;border-radius:14px 0 0 14px;border-right:2px dashed #c8e6c9}
+/* ---- MBTI Result ---- */
+.rc{background:#fff;border-radius:22px;padding:24px 16px 26px;width:100%;text-align:center;border:3px solid #e0d5c8;box-shadow:4px 4px 0 #e0d5c8;position:relative;overflow:hidden}
+.mbti-code{display:flex;justify-content:center;gap:5px;margin:8px 0 4px}
+.mbti-letter{display:flex;flex-direction:column;align-items:center}
+.mbti-letter .letter{font-size:34px;font-weight:900;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid rgba(0,0,0,.1);box-shadow:2px 2px 0 rgba(0,0,0,.08)}
+.mbti-letter .label{font-size:9px;color:#8a7a6a;margin-top:3px;letter-spacing:1px}
+.tn{font-size:20px;color:#ff7043;margin:10px 0 6px;font-weight:700}
+.td{font-size:13px;color:#6a5a4a;line-height:2;margin-bottom:14px;text-align:left;padding:10px 12px;background:#fdf6ec;border-radius:12px;border:2px dashed #e8ddd0}
+.tg{margin:6px 0 12px;display:flex;flex-wrap:wrap;justify-content:center;gap:5px}
+.tg span{background:#f0faf0;border:2px solid #c8e6c9;border-radius:20px;padding:3px 10px;font-size:11px;color:#2E7D32}
+.dm{width:100%;margin:12px 0 16px}
+.dr{display:flex;align-items:center;margin:7px 0;font-size:11px}
+.dl{width:50px;text-align:right;font-weight:700;font-size:10px;padding-right:4px;white-space:nowrap}
+.dri{width:50px;text-align:left;font-weight:700;font-size:10px;padding-left:4px;white-space:nowrap}
+.dt{flex:1;height:10px;background:#f0ebe3;border-radius:20px;margin:0 3px;overflow:hidden;border:1.5px solid #e0d5c8}
+.df{height:100%;border-radius:20px;transition:width .8s}
+.ms{display:flex;gap:8px;margin-top:12px}
+.mb{flex:1;background:#fdf6ec;border-radius:14px;padding:12px 6px;text-align:center;border:2px solid #e8ddd0}
+.mi{font-size:30px;margin-bottom:3px}
+.ml{font-size:9px;color:#8a7a6a;letter-spacing:1px;margin-bottom:2px}
+.mn{font-size:14px;font-weight:700;color:#3a2f2f}.mr{font-size:10px;color:#8a7a6a;margin-top:2px}
+.btns{display:flex;gap:8px;margin-top:16px;width:100%}
+.sb{flex:1;padding:12px 0;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;border:none;-webkit-appearance:none}
+.sb:active{transform:translate(1px,1px)}
+.sb-save{background:#4CAF50;color:#fff;border:3px solid #2E7D32 !important;box-shadow:3px 3px 0 #2E7D32}
+.sb-re{background:#fff;border:3px solid #e0d5c8 !important;color:#8a7a6a;margin-top:8px;width:100%;padding:10px;border-radius:50px;font-size:12px;cursor:pointer;transition:all .2s;box-shadow:2px 2px 0 #e0d5c8;-webkit-appearance:none}
+.sb-re:active{border-color:#4CAF50 !important;color:#2E7D32}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:#4CAF50;color:#fff;padding:10px 24px;border-radius:50px;font-size:13px;font-weight:600;transition:transform .4s;z-index:99;pointer-events:none;border:2px solid #2E7D32}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.unlock-wrap{position:relative;margin-top:8px}
+.unlock-content{position:relative;z-index:1;filter:blur(2px);pointer-events:none;user-select:none;opacity:.85}
+.unlock-overlay{position:absolute;left:0;top:0;right:0;bottom:0;z-index:3;display:flex;align-items:flex-start;justify-content:center;padding-top:14px;background:linear-gradient(180deg,rgba(253,246,236,.96),rgba(253,246,236,.92));border-radius:14px}
+.unlock-panel{width:calc(100% - 16px);background:#fff5e8;border:2px solid #f6c99d;border-radius:14px;padding:12px 10px;text-align:center;box-shadow:2px 2px 0 #f6c99d}
+.unlock-title{font-size:14px;font-weight:800;color:#d35400;letter-spacing:1px}
+.unlock-desc{font-size:12px;color:#8a5a2a;margin-top:6px;line-height:1.5}
+.unlock-btn{margin-top:8px;background:#ff7043;color:#fff;border:2px solid #e64a19;border-radius:999px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #e64a19;-webkit-appearance:none}
+.unlock-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #e64a19}
+.unlock-btn:disabled{opacity:.75;cursor:not-allowed}
+.unlock-count{font-size:11px;color:#8a6a4a;margin-top:8px;min-height:16px}
+.unlock-wrap.unlocked .unlock-overlay{display:none}
+.unlock-wrap.unlocked .unlock-content{filter:none;pointer-events:auto;user-select:auto;opacity:1}
+@media(max-width:380px){
+  h1{font-size:24px}
+  .hero{font-size:52px}
+  .mbti-letter .letter{width:42px;height:42px;font-size:28px}
+  .qt{font-size:15px;padding:12px 10px}
+  .op{font-size:13px;padding:11px 12px 11px 40px}
+  .ol{width:34px}
+  .dl,.dri{width:44px;font-size:9px}
+}
+</style>
+</head>
+<body>
+<svg class="bg-doodle" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dp" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="6" fill="none" stroke="#4CAF50" stroke-width="1.5" stroke-dasharray="3,3"/><path d="M50,5 Q55,15 60,5" fill="none" stroke="#ff7043" stroke-width="1.2"/><path d="M30,50 L35,40 L40,50" fill="none" stroke="#4CAF50" stroke-width="1.2"/><circle cx="65" cy="55" r="3" fill="none" stroke="#ffa726" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#dp)"/></svg>
+<div id="toast" class="toast"></div>
+<div class="ct">
+<div class="sc on" id="s0">
+  <div class="logo"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAMAAAANIilAAAABO1BMVEUA0R8J0ycd1jk3209E3ltU4Gli43Vl43hv5YF35ohZ4W0k2D8R1C4B0SAo2EJW4WuE6ZOq8LTK9dDr++3////5/vrh+uXE9cuH6pY83FQP1CwG0iRA3Vd/6I+688Pz/fXf+eOx8bo53FFe4nGu8bj1/fa28r9q5HxI3l74/vn9//3B9Mlo5HrZ+N2W7KPn++r8/vyk769R4Gbc+eCM6poL0ynw/PL+//4D0iKa7aYU1TEf1zrO9tQi1z2d7qnS99dg4nN754tN32PV+Nqo77Mu2Ueh7qwt2Uf2/fcZ1jXM9tIX1TPp++yl77C38sDk+ucq2UQx2kpz5oRK32CV7KJ454jH9c608b1n3XEk1DlU2mGH44/V9Nej6amw7LU/106W5py978Hg9+J44IDJ8czR99eQ652/88fv/PGrfI5cAAABDUlEQVR4nO2VsQ6DIBiEb26cmlvq3jdomm4d+wIdGBj6/k/RgIAS1P6/NDroRTRRPg+Q/wQO7UsnSoVSYpYlfRt945hYdrzzXQO/amELhsm7C6y1tPFOnO0snBwAYwyN0TjDcwFGB3f9+RN2j3zzwwZdkw+biKfolkZDFewWyww2EBRzzt8DiXPw8MdnCBsx7Fsgw4JzfrUlYgm3zUMIN42w4/7EVAxqkl2NjCferNJWngzMafV1MB23UxoU0UxYjysD1DSy3vo1OwfMXVqNK3rH3lTmzhQ3WfbIYWY/vnRvK/i5GYw1YACXxF5VnwrLN8lAC4IAVYXBqpJkD+jLGQW8WgCiKnorQ//Q//UFPkg/IgFM4sYAAAAASUVORK5CYII=" alt="懂球帝"><div class="logo-t">懂球帝<small>DongQiuDi</small></div></div>
+  <div class="hero">⚽</div>
+  <h1>球星人格测试</h1>
+  <div class="ver">DQDTI</div>
+  <p class="sub">12道题，测出你的足球人格类型<br>找到属于你的球星灵魂与教练气质<br>你是热血战士还是冷静大师？</p>
+  <button class="btn" onclick="go()">开 始 测 试</button>
+</div>
+<div class="sc" id="s1">
+  <div class="logo"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAMAAAANIilAAAABO1BMVEUA0R8J0ycd1jk3209E3ltU4Gli43Vl43hv5YF35ohZ4W0k2D8R1C4B0SAo2EJW4WuE6ZOq8LTK9dDr++3////5/vrh+uXE9cuH6pY83FQP1CwG0iRA3Vd/6I+688Pz/fXf+eOx8bo53FFe4nGu8bj1/fa28r9q5HxI3l74/vn9//3B9Mlo5HrZ+N2W7KPn++r8/vyk769R4Gbc+eCM6poL0ynw/PL+//4D0iKa7aYU1TEf1zrO9tQi1z2d7qnS99dg4nN754tN32PV+Nqo77Mu2Ueh7qwt2Uf2/fcZ1jXM9tIX1TPp++yl77C38sDk+ucq2UQx2kpz5oRK32CV7KJ454jH9c608b1n3XEk1DlU2mGH44/V9Nej6amw7LU/106W5py978Hg9+J44IDJ8czR99eQ652/88fv/PGrfI5cAAABDUlEQVR4nO2VsQ6DIBiEb26cmlvq3jdomm4d+wIdGBj6/k/RgIAS1P6/NDroRTRRPg+Q/wQO7UsnSoVSYpYlfRt945hYdrzzXQO/amELhsm7C6y1tPFOnO0snBwAYwyN0TjDcwFGB3f9+RN2j3zzwwZdkw+biKfolkZDFewWyww2EBRzzt8DiXPw8MdnCBsx7Fsgw4JzfrUlYgm3zUMIN42w4/7EVAxqkl2NjCferNJWngzMafV1MB23UxoU0UxYjysD1DSy3vo1OwfMXVqNK3rH3lTmzhQ3WfbIYWY/vnRvK/i5GYw1YACXxF5VnwrLN8lAC4IAVYXBqpJkD+jLGQW8WgCiKnorQ//Q//UFPkg/IgFM4sYAAAAASUVORK5CYII=" alt="懂球帝"><div class="logo-t">懂球帝</div></div>
+  <div class="bar"><div class="bar-f" id="pb"></div></div>
+  <div class="qn" id="qn"></div>
+  <div class="qt" id="qt"></div>
+  <div class="ops" id="os"></div>
+</div>
+<div class="sc" id="s2">
+  <div class="logo"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAMAAAANIilAAAABO1BMVEUA0R8J0ycd1jk3209E3ltU4Gli43Vl43hv5YF35ohZ4W0k2D8R1C4B0SAo2EJW4WuE6ZOq8LTK9dDr++3////5/vrh+uXE9cuH6pY83FQP1CwG0iRA3Vd/6I+688Pz/fXf+eOx8bo53FFe4nGu8bj1/fa28r9q5HxI3l74/vn9//3B9Mlo5HrZ+N2W7KPn++r8/vyk769R4Gbc+eCM6poL0ynw/PL+//4D0iKa7aYU1TEf1zrO9tQi1z2d7qnS99dg4nN754tN32PV+Nqo77Mu2Ueh7qwt2Uf2/fcZ1jXM9tIX1TPp++yl77C38sDk+ucq2UQx2kpz5oRK32CV7KJ454jH9c608b1n3XEk1DlU2mGH44/V9Nej6amw7LU/106W5py978Hg9+J44IDJ8czR99eQ652/88fv/PGrfI5cAAABDUlEQVR4nO2VsQ6DIBiEb26cmlvq3jdomm4d+wIdGBj6/k/RgIAS1P6/NDroRTRRPg+Q/wQO7UsnSoVSYpYlfRt945hYdrzzXQO/amELhsm7C6y1tPFOnO0snBwAYwyN0TjDcwFGB3f9+RN2j3zzwwZdkw+biKfolkZDFewWyww2EBRzzt8DiXPw8MdnCBsx7Fsgw4JzfrUlYgm3zUMIN42w4/7EVAxqkl2NjCferNJWngzMafV1MB23UxoU0UxYjysD1DSy3vo1OwfMXVqNK3rH3lTmzhQ3WfbIYWY/vnRvK/i5GYw1YACXxF5VnwrLN8lAC4IAVYXBqpJkD+jLGQW8WgCiKnorQ//Q//UFPkg/IgFM4sYAAAAASUVORK5CYII=" alt="懂球帝"><div class="logo-t">懂球帝</div></div>
+  <div id="res"></div>
+</div>
+</div>
+
+<script>
+const Q=[
+{q:"踢球/玩FIFA时，你最享受的瞬间？",d:0,o:[
+  {t:"⚡ 一脚世界波直挂死角",v:3},{t:"🤝 精妙配合撕开防线后破门",v:2},{t:"🧤 一次完美铲断化解单刀",v:1},{t:"🏔️ 全队拼命守住最后一分钟",v:0}]},
+{q:"球队1-0领先，还剩15分钟，你希望球队？",d:0,o:[
+  {t:"⚔️ 继续压上，再进一个杀死比赛",v:2},{t:"🔒 收缩防守，稳稳守住比分",v:0}]},
+{q:"如果你是教练，0-1落后时你会？",d:0,o:[
+  {t:"🔥 立刻换前锋，全力搏命进攻",v:2},{t:"⏳ 先稳住节奏，耐心等待机会",v:1},{t:"🎯 加强防守，靠定位球搏一把",v:0}]},
+{q:"支持的球队绝杀进球！你的反应是？",d:1,o:[
+  {t:"🤯 跳起来大喊，恨不得掀翻桌子",v:2},{t:"👏 激动拍手叫好，连发三条朋友圈",v:1},{t:"😏 微微一笑，内心已经放烟花了",v:0}]},
+{q:"看到一个明显的争议判罚，你会？",d:1,o:[
+  {t:"🤬 立刻在群里/弹幕疯狂输出",v:3},{t:"😤 边骂边看回放，情绪理智并存",v:2},{t:"🧐 冷静分析是否确实误判",v:1},{t:"😌 无所谓，裁判说了算",v:0}]},
+{q:"球队在关键比赛中惨败，你会？",d:1,o:[
+  {t:"😭 难受好几天，看到新闻就心痛",v:2},{t:"📊 复盘分析原因，理性看待胜负",v:0}]},
+{q:"你更喜欢怎么看一场重要比赛？",d:2,o:[
+  {t:"🍻 约一大群朋友去酒吧一起嗨",v:2},{t:"👬 和一两个铁哥们安静看",v:1},{t:"🎧 一个人看，不想被任何人打扰",v:0}]},
+{q:"关于足球话题的讨论，你更倾向？",d:2,o:[
+  {t:"⚔️ 论坛群里激烈讨论，舌战群儒",v:3},{t:"💬 偶尔发表评论，互动几句",v:2},{t:"👀 只看不说，默默点赞收藏",v:1},{t:"📖 自己看分析文章就够了",v:0}]},
+{q:"踢野球时你更喜欢？",d:2,o:[
+  {t:"🏟️ 人越多越好，大场才过瘾",v:2},{t:"⚽ 三五个人小场对抗就很开心",v:0}]},
+{q:"看比赛时你更关注什么？",d:3,o:[
+  {t:"📐 阵型变化、跑位路线、战术执行",v:2},{t:"🔄 两边都看，取决于比赛精彩程度",v:1},{t:"✨ 精彩过人、远射、个人高光时刻",v:0}]},
+{q:"评价一个球员的水平，你更看重？",d:3,o:[
+  {t:"📈 数据统计、传球成功率、跑动热图",v:3},{t:"⚖️ 攻防贡献和对比赛走势的影响",v:2},{t:"🏆 关键球能力和大赛表现",v:1},{t:"🎭 场上的感觉、气质和观赏性",v:0}]},
+{q:"选FIFA/实况首发阵容时，你会？",d:3,o:[
+  {t:"🧪 研究最优阵型搭配和化学反应",v:2},{t:"❤️ 选自己喜欢的球星，管他配不配",v:0}]}
+];
+const MX=[7,7,7,7];
+const DM=[["G","W","进攻","防守","#ff6b6b","#4ecdc4"],["F","I","热血","冷静","#ff9f43","#54a0ff"],["P","L","社交","独狼","#ff6b81","#a29bfe"],["B","H","战术","直觉","#feca57","#48dbfb"]];
+const DL=[["进攻型","防守型"],["热血型","冷静型"],["社交型","独狼型"],["战术型","直觉型"]];
+const T={
+GFPB:{n:"人形鸡血发射器",i:"🦁",bg:"linear-gradient(135deg,#ff416c,#ff4b2b)",d:"你就是那个进球后能把整个看台带起来的人。朋友圈里永远在约球，群里永远在分析阵型，酒吧里喊得最大声。你的热情能让隔壁桌陌生人都跟着庆祝。建议去当球迷会会长，不然浪费了这嗓门和这脑子。",s:"杰拉德",sr:"利物浦传奇队长",c:"克洛普",cr:"重金属足球教父",tg:["行走の扩音器","战术型社牛","群里的MVP","永远在约球"]},
+GFPH:{n:"野路子带头大哥",i:"🎭",bg:"linear-gradient(135deg,#f7971e,#ffd200)",d:"你踢球不看战术板，全凭一股「老子今天状态好」的玄学。但神奇的是你经常真的状态好。看球时你是朋友里情绪最炸裂的，进球时邻居以为你家着火了。你的快乐很简单——球进了就是快乐，管它越不越位。",s:"亚马尔",sr:"巴萨未来之星",c:"恩里克",cr:"MSN缔造者",tg:["玄学附体","情绪过山车","管它越不越位","邻居已报警"]},
+GFLB:{n:"赛博健身房独狼",i:"🦅",bg:"linear-gradient(135deg,#455a64,#78909c)",d:"你手机里有三个足球数据APP，每天早起跑步时听的是战术分析播客。你不太爱和人讨论足球，因为觉得他们不够专业。你的偶像是C罗，不是因为帅，是因为你也想拥有那种「全世界都不信我但我偏要证明」的劲。",s:"哈兰德",sr:"曼城进球机器",c:"穆里尼奥",cr:"特殊的那一个",tg:["数据の呼吸","一个人的健身房","胜负欲怪物","沉默の卷王"]},
+GFLH:{n:"被足球耽误的诗人",i:"🌟",bg:"linear-gradient(135deg,#8e2de2,#4a00e0)",d:"你看球从来不看数据，你看的是「感觉」。你能为一个精妙的脚后跟传球激动半天，但对比分可能记不太清。你享受深夜一个人看经典比赛回放的时光，偶尔在朋友圈发一句「足球是圆的」然后不解释。",s:"梅西",sr:"八座金球の球王",c:"贝尔萨",cr:"疯子教练",tg:["脚后跟鉴赏家","比分失忆症","深夜回放大师","足球是圆的"]},
+GIPB:{n:"人形战术板",i:"🧠",bg:"linear-gradient(135deg,#00b4db,#0083b0)",d:"你看球时旁边的人都不敢说话，因为你会突然来一句「你看这个跑位，这是假跑拉出空间」。你的朋友已经习惯了你在酒吧用盐瓶和杯子摆阵型。你冷静、理性、永远正确——至少你自己是这么认为的。",s:"哈维",sr:"宇宙队中场大师",c:"瓜迪奥拉",cr:"Tiki-Taka之父",tg:["盐瓶摆阵型","冷静到可怕","朋友圈战术课","永远正确先生"]},
+GIPH:{n:"佛系扫地僧",i:"🎩",bg:"linear-gradient(135deg,#2193b0,#6dd5ed)",d:"你是那种看完一场0-0的比赛还能说「这场球真精彩」的人。你欣赏的不是进球，是第73分钟那个不易察觉的战术微调。你和朋友看球时永远最淡定，偶尔冒出一句「这球传得妙」，然后继续喝你的茶。",s:"齐达内",sr:"艺术足球化身",c:"安切洛蒂",cr:"淡定的唐·卡洛",tg:["0-0也精彩","品茶看球","一句话点评","扫地僧本僧"]},
+GILB:{n:"深夜数据幽灵",i:"🥶",bg:"linear-gradient(135deg,#455a64,#607d8b)",d:"凌晨三点，别人在睡觉，你在看xG数据和热力图。你的浏览器收藏夹里全是数据网站，能用数据证明任何一个球员被高估或低估。你从不在群里发言，但偶尔甩出一篇万字分析然后消失。你是论坛里的都市传说。",s:"姆巴佩",sr:"皇马闪电飞翼",c:"阿莱格里",cr:"实用主义大师",tg:["凌晨三点の男人","xG信徒","万字分析怪","论坛都市传说"]},
+GILH:{n:"快乐摆烂艺术家",i:"😄",bg:"linear-gradient(135deg,#11998e,#38ef7d)",d:"你踢球的最高境界是「开心就好」，赢了开心，输了也开心，因为刚才那个彩虹过人太帅了。你看球从不较真，偶尔被一个神仙球惊到，发个「卧槽」就是你最高的赞美。你是球迷里最没胜负欲的人，但也是最快乐的。",s:"罗纳尔迪尼奥",sr:"足球精灵 · 微笑刺客",c:"弗里克",cr:"低调的冠军教头",tg:["开心就好","卧槽鉴赏家","零胜负欲","快乐の极致"]},
+WFPB:{n:"铁血队长",i:"🛡️",bg:"linear-gradient(135deg,#b91d73,#f953c6)",d:"你是后防线上的精神领袖，热血沸腾但从不丢失位置感。你喜欢和兄弟们一起战斗，享受团队防守成功后的集体庆祝。你看球时是那个喊得最凶、最护犊子的人。",s:"拉莫斯",sr:"水爷 · 红牌收割机",c:"西蒙尼",cr:"防反之王",tg:["铁血队魂","护犊狂魔","团队核心","永不放弃"]},
+WFPH:{n:"战斗之魂",i:"🔥",bg:"linear-gradient(135deg,#ed213a,#93291e)",d:"你踢球全靠一腔热血和永不服输的斗志，防守时恨不得把对手连球带人铲出场外。你是朋友中最护主队的那个，谁说你主队不好你跟谁急。",s:"加图索",sr:"永远在战斗的斗犬",c:"孔蒂",cr:"激情三后卫教父",tg:["热血战士","暴力美学","死忠球迷","拼到最后"]},
+WFLB:{n:"钢铁长城",i:"🏰",bg:"linear-gradient(135deg,#546e7a,#78909c)",d:"你是后防线上最可靠的存在，冷静中带着一股狠劲。你喜欢独自研究防守站位和对手特点，是那种默默做功课的硬核球迷。你不爱说话，但关键时刻永远顶得住。",s:"马尔蒂尼",sr:"米兰永远的队长",c:"卡佩罗",cr:"铁腕治军者",tg:["沉稳可靠","硬核球迷","低调务实","钢铁意志"]},
+WFLH:{n:"暴力美学家",i:"💪",bg:"linear-gradient(135deg,#c31432,#240b36)",d:"你防守全凭直觉和身体天赋，不讲道理的那种。你享受一个人看球时对着屏幕怒吼的快感，对足球有自己的野性审美——什么漂亮不漂亮，赢了就是漂亮。",s:"维迪奇",sr:"塞尔维亚铁卫",c:"普利斯",cr:"长传冲吊代言人",tg:["简单粗暴","野性之美","独来独往","结果导向"]},
+WIPB:{n:"儒雅后防",i:"👔",bg:"linear-gradient(135deg,#1a2980,#26d0ce)",d:"你是后防线上的绅士，防守优雅而有章法。你喜欢和朋友一起看球，冷静地分析每一次防守轮转。你欣赏有组织的防守胜过任何华丽进攻，认为零封才是最高艺术。",s:"贝肯鲍尔",sr:"足球皇帝",c:"博斯克",cr:"沉默的冠军教头",tg:["优雅防守","零封美学","冷静社交","战术素养"]},
+WIPH:{n:"优雅盾牌",i:"⚜️",bg:"linear-gradient(135deg,#4568dc,#b06ab3)",d:"你防守从容不迫，像是在球场上散步就能化解危机。你喜欢和朋友一起享受比赛，但从不过度激动。你相信好的防守是一种艺术，提前预判比拼命铲球高级得多。",s:"蒂亚戈·席尔瓦",sr:"巴黎铁卫 · 不老传说",c:"德尚",cr:"世界杯冠军教头",tg:["从容化解","预判大师","淡定球迷","防守艺术"]},
+WILB:{n:"沉默守护者",i:"🌑",bg:"linear-gradient(135deg,#455a64,#78909c)",d:"你是最低调的防守大师，不需要掌声和关注，只需要一块干净的禁区。你喜欢独自研究防守数据和对手习惯，是那种能写出万字防守分析的硬核技术宅。",s:"卡纳瓦罗",sr:"金球后卫 · 矮个巨人",c:"萨里",cr:"烟不离手的战术家",tg:["默默守护","数据极客","低调内敛","完美主义"]},
+WILH:{n:"淡定磐石",i:"🗿",bg:"linear-gradient(135deg,#78909c,#90a4ae)",d:"你是后防线上最佛系的存在，不慌不忙，一切尽在掌握。你享受一个人安静看球的时光，对足球有自己的直觉判断。你不追数据不看战术板，但总能在关键时刻做出正确选择。",s:"内斯塔",sr:"米兰优雅铁闸",c:"斯科拉里",cr:"大Phil · 世界杯之王",tg:["泰山崩于前","直觉防守","佛系至极","大赛型"]}
+};
+let ci=0,sc=[0,0,0,0],rCode='',rT=null,rPcts=[];
+function sw(id){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on')}
+function go(){ci=0;sc=[0,0,0,0];sw('s1');rd()}
+function rd(){
+  const q=Q[ci],lb='ABCD';
+  document.getElementById('pb').style.width=((ci/Q.length)*100)+'%';
+  document.getElementById('qn').textContent='Q'+(ci+1)+' / '+Q.length;
+  document.getElementById('qt').textContent=q.q;
+  const b=document.getElementById('os');b.innerHTML='';
+  q.o.forEach((o,i)=>{const e=document.createElement('div');e.className='op';e.innerHTML='<span class="ol">'+lb[i]+'</span>'+o.t;e.onclick=()=>{sc[q.d]+=o.v;ci++;ci<Q.length?rd():fin()};b.appendChild(e)});
+}
+function fin(){
+  rCode='';rPcts=[];
+  for(let i=0;i<4;i++){const p=Math.min(Math.round(sc[i]/MX[i]*100),100);rPcts.push(p);rCode+=p>=50?DM[i][0]:DM[i][1]}
+  rT=T[rCode]||T["GFPB"];const t=rT;
+  const letterColors=[DM[0][rPcts[0]>=50?4:5],DM[1][rPcts[1]>=50?4:5],DM[2][rPcts[2]>=50?4:5],DM[3][rPcts[3]>=50?4:5]];
+  let mbtiHtml='';
+  for(let i=0;i<4;i++){
+    const isLeft=rPcts[i]>=50;
+    mbtiHtml+='<div class="mbti-letter"><div class="letter" style="background:'+letterColors[i]+'">'+rCode[i]+'</div><div class="label">'+(isLeft?DL[i][0]:DL[i][1])+'</div></div>';
+  }
+  let dm='';
+  for(let i=0;i<4;i++){
+    const p=rPcts[i],l=p>=50,c=l?DM[i][4]:DM[i][5],w=Math.max(l?p:100-p,22),dir=l?'left':'right';
+    const lPct=p,rPct=100-p;
+    dm+='<div class="dr"><span class="dl" style="color:'+DM[i][4]+'">'+DM[i][2]+' '+lPct+'%</span><div class="dt"><div class="df" style="width:'+w+'%;background:'+c+';float:'+dir+'"></div></div><span class="dri" style="color:'+DM[i][5]+'">'+rPct+'% '+DM[i][3]+'</span></div>';
+  }
+  let tg='';t.tg.forEach(x=>{tg+='<span>#'+x+'</span>'});
+  document.getElementById('res').innerHTML='<div class="rc" id="card">'+
+    '<div style="font-size:12px;color:#8a7a6a;margin-bottom:6px">— 你的球星人格类型 —</div>'+
+    '<div class="mbti-code">'+mbtiHtml+'</div>'+
+    '<div class="tn">「'+t.n+'」</div>'+
+    '<div class="tg">'+tg+'</div>'+
+    '<div class="unlock-wrap" id="unlockWrap">'+
+      '<div class="unlock-content" id="unlockContent">'+
+        '<div class="dm">'+dm+'</div>'+
+        '<div class="td">'+t.d+'</div>'+
+        '<div class="ms">'+
+          '<div class="mb"><div class="mi">⭐</div><div class="ml">灵魂球星</div><div class="mn">'+t.s+'</div><div class="mr">'+t.sr+'</div></div>'+
+          '<div class="mb"><div class="mi">📋</div><div class="ml">气质教练</div><div class="mn">'+t.c+'</div><div class="mr">'+t.cr+'</div></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="unlock-overlay" id="unlockOverlay">'+
+        '<div class="unlock-panel">'+
+          '<div class="unlock-title">看激励视频解锁全部内容</div>'+
+          '<div class="unlock-desc" id="unlockDesc">进入页面已尝试预加载，点击即可观看</div>'+
+          '<button class="unlock-btn" id="unlockBtn" onclick="unlockByAd()">看激励视频解锁</button>'+
+          '<div class="unlock-count" id="unlockCount">需观看 8s 后解锁</div>'+
+        '</div>'+
+      '</div>'+
+    '</div></div>'+
+    '<button class="sb-re" onclick="go()">🔄 重新测试</button>';
+  sw('s2');
+  if (typeof window.resetAdLock === 'function') window.resetAdLock();
+}
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)}
+function saveImg(){
+  const W=620,H=900,cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const c=cv.getContext('2d'),t=rT,ps=rPcts;
+  c.fillStyle='#fdf6ec';c.fillRect(0,0,W,H);
+  c.globalAlpha=0.04;
+  for(let x=0;x<W;x+=60)for(let y=0;y<H;y+=60){c.beginPath();c.arc(x+10,y+10,5,0,Math.PI*2);c.strokeStyle='#4CAF50';c.lineWidth=1;c.stroke();}
+  c.globalAlpha=1;
+  rr(c,24,20,W-48,H-40,20,'#fff');
+  c.setLineDash([6,4]);c.strokeStyle='#e0d5c8';c.lineWidth=2.5;rr(c,24,20,W-48,H-40,20,null,true);c.setLineDash([]);
+  c.fillStyle='#2E7D32';c.font='700 14px sans-serif';c.textAlign='center';
+  c.fillText('⚽ 懂球帝 · 球星人格测试',W/2,56);
+  c.fillStyle='#8a7a6a';c.font='12px sans-serif';c.fillText('— 你的球星人格类型 —',W/2,80);
+  const cols=t.bg.match(/#[0-9a-fA-F]{6}/g)||['#4CAF50','#2E7D32'];
+  const lc=[DM[0][ps[0]>=50?4:5],DM[1][ps[1]>=50?4:5],DM[2][ps[2]>=50?4:5],DM[3][ps[3]>=50?4:5]];
+  const bw2=56,gap2=8,tw=bw2*4+gap2*3,sx=(W-tw)/2;
+  for(let i=0;i<4;i++){
+    const x=sx+i*(bw2+gap2),y=96;
+    rr(c,x,y,bw2,bw2,12,lc[i]);
+    c.strokeStyle='rgba(0,0,0,.1)';c.lineWidth=2;rr(c,x,y,bw2,bw2,12,null,true);
+    c.font='900 32px sans-serif';c.fillStyle='#fff';c.textAlign='center';c.textBaseline='middle';
+    c.fillText(rCode[i],x+bw2/2,y+bw2/2);c.textBaseline='alphabetic';
+    c.font='9px sans-serif';c.fillStyle='#8a7a6a';
+    c.fillText(ps[i]>=50?DL[i][0]:DL[i][1],x+bw2/2,y+bw2+14);
+  }
+  c.font='700 22px sans-serif';c.fillStyle='#ff7043';c.textAlign='center';
+  c.fillText('「'+t.n+'」',W/2,200);
+  c.font='12px sans-serif';c.fillStyle='#2E7D32';c.fillText(t.tg.map(x=>'#'+x).join('  '),W/2,224);
+  const bx=70,barW=W-140,dy=252,dh=30;
+  for(let i=0;i<4;i++){
+    const y=dy+i*dh,p=ps[i],isL=p>=50,clr=isL?DM[i][4]:DM[i][5];
+    const fw=Math.max(isL?p:100-p,22);
+    c.font='700 10px sans-serif';c.fillStyle=DM[i][4];c.textAlign='right';c.fillText(DM[i][2]+' '+p+'%',bx-6,y+8);
+    rr(c,bx,y-2,barW,14,7,'#f0ebe3');c.strokeStyle='#e0d5c8';c.lineWidth=1;rr(c,bx,y-2,barW,14,7,null,true);
+    if(isL){rr(c,bx,y-2,barW*fw/100,14,7,clr)}
+    else{const fW=barW*fw/100;rr(c,bx+barW-fW,y-2,fW,14,7,clr)}
+    c.font='700 10px sans-serif';c.fillStyle=DM[i][5];c.textAlign='left';c.fillText((100-p)+'% '+DM[i][3],bx+barW+6,y+8);
+  }
+  c.setLineDash([4,3]);c.strokeStyle='#e8ddd0';c.lineWidth=1.5;
+  rr(c,44,388,W-88,160,12,'#fdf6ec');rr(c,44,388,W-88,160,12,null,true);c.setLineDash([]);
+  c.font='13px sans-serif';c.fillStyle='#6a5a4a';c.textAlign='left';
+  wrapText(c,t.d,58,412,W-116,20);
+  const by=580,bbw=240,bh=120,bgap=20;
+  const lx=(W-bbw*2-bgap)/2,rx=lx+bbw+bgap;
+  rr(c,lx,by,bbw,bh,14,'#fdf6ec');c.strokeStyle='#e8ddd0';c.lineWidth=1.5;rr(c,lx,by,bbw,bh,14,null,true);
+  rr(c,rx,by,bbw,bh,14,'#fdf6ec');rr(c,rx,by,bbw,bh,14,null,true);
+  c.textAlign='center';c.font='26px serif';c.fillStyle='#3a2f2f';
+  c.fillText('⭐',lx+bbw/2,by+34);c.fillText('📋',rx+bbw/2,by+34);
+  c.font='9px sans-serif';c.fillStyle='#8a7a6a';
+  c.fillText('灵魂球星',lx+bbw/2,by+52);c.fillText('气质教练',rx+bbw/2,by+52);
+  c.font='700 16px sans-serif';c.fillStyle='#3a2f2f';
+  c.fillText(t.s,lx+bbw/2,by+76);c.fillText(t.c,rx+bbw/2,by+76);
+  c.font='11px sans-serif';c.fillStyle='#8a7a6a';
+  c.fillText(t.sr,lx+bbw/2,by+96);c.fillText(t.cr,rx+bbw/2,by+96);
+  c.font='11px sans-serif';c.fillStyle='#baa';c.textAlign='center';
+  c.fillText('懂球帝 DQDTI  |  球星人格测试',W/2,H-28);
+  const a=document.createElement('a');a.download='DQDTI_'+rCode+'.png';a.href=cv.toDataURL('image/png');a.click();
+  toast('结果图已保存！');
+}
+function rr(c,x,y,w,h,r,f,sk){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();if(f){c.fillStyle=f;c.fill()}if(sk)c.stroke()}
+function wrapText(c,t,x,y,mw,lh){const w=t.split('');let ln='';for(let i=0;i<w.length;i++){const tl=ln+w[i];if(c.measureText(tl).width>mw&&ln){c.fillText(ln,x,y);ln=w[i];y+=lh}else ln=tl}c.fillText(ln,x,y)}
+</script>
+
+<script>
+const REWARD_CFG={
+  sceneId:'leagueCollect_14',
+  bridgeDetectTimeout:5000,
+  readyRetryTimeout:12000,
+  readyRetryInterval:300,
+  callbackTimeout:8000,
+  preloadCallbackTimeout:15000,
+  preloadMaxAge:180000,
+  adRequest:{
+    ios:{
+      method:'get',
+      urlMap:{
+        'test1-n.dongdianqiu.com':'https://test-ap.dongdianqiu.com/plat/v3',
+        'beta-n.dongdianqiu.com':'https://beta-ap.dongdianqiu.com/plat/v3',
+        'n.dongdianqiu.com':'https://ap.dongdianqiu.com/plat/v3'
+      },
+      fallbackUrl:'https://ap.dongdianqiu.com/plat/v3',
+      param:{apname:'DProApp',apvc:'8.5.2',os:'ios',platform:'1',position:'0',pgid:'1.15.2'}
+    },
+    android:{
+      method:'get',
+      urlMap:{
+        'test1-n.dongqiudi.com':'https://test-ap.dongqiudi.com/plat/v3',
+        'beta-n.dongqiudi.com':'https://beta-ap.dongqiudi.com/plat/v3',
+        'n.dongqiudi.com':'https://ap.dongqiudi.com/plat/v3',
+        '10.18.7.0':'https://beta-ap.dongqiudi.com/plat/v3'
+      },
+      fallbackUrl:'https://ap.dongqiudi.com/plat/v3',
+      param:{pgid:'1.15.2'}
+    }
+  },
+  reward:{reward_name:'coin',reward_amount:'1',data:'',pgid:'1.15.2'}
+};
+
+const REWARD_STATE={
+  ready:false,
+  initing:false,
+  initDone:false,
+  currentPayload:null,
+  preloadedAt:0,
+  unlockTimer:null,
+  unlocking:false,
+  unlocked:false,
+  preloadWeak:false
+};
+
+function rwLog(title,data){
+  try{console.log('[DQDTI Reward]',title,data||'')}catch(e){}
+}
+
+function rwSafeParse(v){
+  if(typeof v!=='string')return v;
+  try{return JSON.parse(v)}catch(e){return v}
+}
+
+function rwError(code,message,detail){
+  const e=new Error(message||code||'reward_error');
+  e.code=code||'REWARD_ERROR';
+  if(typeof detail!=='undefined')e.detail=detail;
+  return e;
+}
+
+function rwStageError(stage,error,fallbackCode,fallbackMessage){
+  const e=(error&&error.code)?error:rwError(fallbackCode||'REWARD_ERROR', (error&&error.message)||fallbackMessage||'reward error');
+  if(!e.detail||typeof e.detail!=='object')e.detail={};
+  if(!e.detail.stage)e.detail.stage=stage;
+  return e;
+}
+
+function rwDetectPlatform(){
+  const ua=(navigator.userAgent||'').toLowerCase();
+  if(/android/.test(ua))return 'android';
+  if(/iphone|ipad|ipod|ios/.test(ua))return 'ios';
+  return 'android';
+}
+
+function rwEnsureConnector(){
+  if(window.connectWebViewJavascriptBridge)return;
+  window.connectWebViewJavascriptBridge=function(callback){
+    if(window.WebViewJavascriptBridge){
+      if(!window.WebViewJavascriptBridge._messageHandler&&window.WebViewJavascriptBridge.init){
+        window.WebViewJavascriptBridge.init(function(){});
+      }
+      callback(window.WebViewJavascriptBridge);
+      return;
+    }
+    if(window.$bridge&&window.$bridge.callHandler){
+      callback(window.$bridge);
+      return;
+    }
+    document.addEventListener('WebViewJavascriptBridgeReady',function(){
+      if(window.WebViewJavascriptBridge&&!window.WebViewJavascriptBridge._messageHandler&&window.WebViewJavascriptBridge.init){
+        window.WebViewJavascriptBridge.init(function(){});
+      }
+      callback(window.WebViewJavascriptBridge||window.$bridge||null);
+    },false);
+    if(window.WVJBCallbacks){window.WVJBCallbacks.push(callback);return;}
+    window.WVJBCallbacks=[callback];
+    const iframe=document.createElement('iframe');
+    iframe.style.display='none';
+    iframe.src='https://__bridge_loaded__';
+    document.documentElement.appendChild(iframe);
+    setTimeout(()=>{if(iframe.parentNode)iframe.parentNode.removeChild(iframe);},0);
+  };
+}
+
+function rwGetBridge(timeoutMs){
+  const timeout=Number(timeoutMs)||REWARD_CFG.bridgeDetectTimeout;
+  return new Promise((resolve,reject)=>{
+    let done=false;
+    rwEnsureConnector();
+    const timer=setTimeout(()=>{
+      if(done)return;done=true;
+      reject(rwError('REWARD_BRIDGE_NOT_READY','未检测到可用的 WebView bridge',{timeout}));
+    },timeout);
+    window.connectWebViewJavascriptBridge(function(bridge){
+      if(done)return;done=true;clearTimeout(timer);
+      if(bridge&&bridge.callHandler){resolve(bridge);return;}
+      reject(rwError('REWARD_BRIDGE_NO_CALL_HANDLER','bridge 已就绪，但没有 callHandler'));
+    });
+  });
+}
+
+async function rwEnsureReady(){
+  const start=Date.now();
+  let lastErr=null;
+  while(Date.now()-start<REWARD_CFG.readyRetryTimeout){
+    try{
+      await rwGetBridge(Math.min(REWARD_CFG.bridgeDetectTimeout,Math.max(300,REWARD_CFG.readyRetryInterval)));
+      REWARD_STATE.ready=true;
+      return;
+    }catch(e){
+      lastErr=e;
+      await new Promise(r=>setTimeout(r,REWARD_CFG.readyRetryInterval));
+    }
+  }
+  throw rwError('REWARD_BRIDGE_NOT_READY','bridge 在重试窗口内未就绪',{lastError:lastErr&&lastErr.message});
+}
+
+function rwResolveAdRequest(platform){
+  const cfg=REWARD_CFG.adRequest[platform];
+  const hostname=location&&location.hostname?location.hostname:'';
+  const param=Object.assign({},cfg.param||{});
+  const url=(cfg.urlMap&&cfg.urlMap[hostname])||cfg.fallbackUrl;
+  param.pgid=REWARD_CFG.reward.pgid||param.pgid||'1.15.2';
+  if(platform==='ios'){
+    param.os='ios';
+    if(!param.platform)param.platform='1';
+    if(!param.position)param.position='0';
+  }
+  return {
+    method:(cfg.method||'get').toLowerCase(),
+    url:url,
+    param:param,
+    callback:'onUnifiedAdRequestDone'
+  };
+}
+
+async function rwCallHandler(name,data,options){
+  const bridge=await rwGetBridge(REWARD_CFG.bridgeDetectTimeout);
+  const opts=options||{};
+  const timeoutMs=Number(opts.timeout)||REWARD_CFG.callbackTimeout;
+  const allowTimeout=!!opts.allowTimeout;
+  return new Promise((resolve,reject)=>{
+    let done=false;
+    const timer=setTimeout(()=>{
+      if(done)return;done=true;
+      if(allowTimeout){
+        resolve({__timeout:true});
+        return;
+      }
+      reject(rwError('REWARD_CALLBACK_TIMEOUT',name+' 回调超时'));
+    },timeoutMs);
+    try{
+      bridge.callHandler(name,data||{},function(response){
+        if(done)return;done=true;clearTimeout(timer);
+        resolve(response);
+      });
+    }catch(e){
+      if(done)return;done=true;clearTimeout(timer);
+      reject(rwError('REWARD_CALL_FAILED',e&&e.message?e.message:'callHandler 失败'));
+    }
+  });
+}
+
+function rwFindRewardItem(body){
+  const list=body&&body.data;
+  if(!Array.isArray(list))return null;
+  for(let i=0;i<list.length;i++){
+    if(list[i]&&list[i].ad_type==='sdk_rewarded_video')return list[i];
+  }
+  return null;
+}
+
+function rwBuildPayload(platform,adItem){
+  const adSource=adItem&&adItem.ad_source?adItem.ad_source:{};
+  const sdkId=adSource.sdk_position_id||adItem.sdk_id;
+  if(!sdkId)throw rwError('REWARD_PAYLOAD_BUILD_FAILED','广告配置缺少 sdk_id');
+
+  const origin=(adItem.origin||adSource.sdk_origin||adSource.sdk_name||(platform==='android'?'tobid':'topon')||'topon').toString().toLowerCase();
+  const pgid=REWARD_CFG.reward.pgid||adItem.pgid||'1.15.2';
+  if(platform==='ios'){
+    return {
+      id:REWARD_CFG.sceneId,
+      relate_id:REWARD_CFG.sceneId,
+      sdk_id:sdkId,
+      sdkId:sdkId,
+      origin:origin,
+      platform:origin,
+      reward_name:REWARD_CFG.reward.reward_name,
+      reward_amount:REWARD_CFG.reward.reward_amount,
+      data:REWARD_CFG.reward.data,
+      imp_mon_arr:Array.isArray(adItem.imp_mon_arr)?adItem.imp_mon_arr:[],
+      click_mon_arr:Array.isArray(adItem.click_mon_arr)?adItem.click_mon_arr:[],
+      pgid:pgid
+    };
+  }
+  return {
+    id:REWARD_CFG.sceneId,
+    data:{},
+    origin:origin,
+    sdk_id:sdkId,
+    sdkId:sdkId,
+    imp_mon_arr:Array.isArray(adItem.imp_mon_arr)?adItem.imp_mon_arr:[],
+    click_mon_arr:Array.isArray(adItem.click_mon_arr)?adItem.click_mon_arr:[],
+    ct:'',
+    pgid:pgid
+  };
+}
+
+async function rwRequestPayloadOnly(){
+  const platform=rwDetectPlatform();
+  const req=rwResolveAdRequest(platform);
+  let adResp;
+  try{
+    adResp=await rwCallHandler('adRequest',req);
+  }catch(e){
+    throw rwStageError('adRequest_call',e,'REWARD_AD_REQUEST_CALL_FAILED','adRequest 调用失败');
+  }
+
+  const body=rwSafeParse(adResp&&adResp._responseWrapedByNative?adResp._responseWrapedByNative:adResp);
+
+  if(!body||typeof body!=='object')throw rwError('REWARD_AD_REQUEST_BAD_BODY','adRequest 返回体为空或格式错误',{stage:'adRequest_parse'});
+  if(typeof body.code!=='undefined'&&Number(body.code)!==0){
+    throw rwError('REWARD_AD_REQUEST_CODE_ERROR','adRequest code='+body.code,{stage:'adRequest_code',code:body.code});
+  }
+
+  const adItem=rwFindRewardItem(body);
+  if(!adItem)throw rwError('REWARD_AD_ITEM_NOT_FOUND','adRequest 未返回 sdk_rewarded_video 广告位',{stage:'adRequest_item'});
+
+  return {
+    platform: platform,
+    payload: rwBuildPayload(platform,adItem)
+  };
+}
+
+async function rwRequestAndPreload(){
+  const ret=await rwRequestPayloadOnly();
+  const platform=ret.platform;
+  const payload=ret.payload;
+
+  REWARD_STATE.preloadWeak=false;
+  try{
+    const preResp=await rwCallHandler('preLoadVideo',payload,{
+      timeout:REWARD_CFG.preloadCallbackTimeout||REWARD_CFG.callbackTimeout,
+      allowTimeout:true
+    });
+    if(preResp&&preResp.__timeout){
+      REWARD_STATE.preloadWeak=true;
+      rwLog('preLoadVideo timeout, fallback to best-effort payload',{platform});
+    }
+  }catch(e){
+    throw rwStageError('preLoadVideo_call',e,'REWARD_PRELOAD_FAILED','preLoadVideo 调用失败');
+  }
+
+  REWARD_STATE.currentPayload=payload;
+  REWARD_STATE.preloadedAt=Date.now();
+  rwLog('request+preload success',{platform,payload,preloadWeak:REWARD_STATE.preloadWeak});
+  return payload;
+}
+
+function rwHasFreshPayload(){
+  return !!(REWARD_STATE.currentPayload&&Date.now()-REWARD_STATE.preloadedAt<=REWARD_CFG.preloadMaxAge);
+}
+
+async function rwShowWithCachedOrRequest(){
+  let payload=REWARD_STATE.currentPayload;
+  if(!rwHasFreshPayload()){
+    const ret=await rwRequestPayloadOnly();
+    payload=ret.payload;
+    REWARD_STATE.currentPayload=payload;
+    REWARD_STATE.preloadedAt=Date.now();
+    REWARD_STATE.preloadWeak=true;
+    rwLog('show path use adRequest-only payload', { platform: ret.platform });
+  }
+  if(!payload)throw rwError('REWARD_PAYLOAD_MISSING','缺少可用 payload',{stage:'connectVideo_payload'});
+  try{
+    await rwCallHandler('connectVideo',payload);
+  }catch(e){
+    throw rwStageError('connectVideo_call',e,'REWARD_SHOW_FAILED','connectVideo 调用失败');
+  }
+}
+
+async function initRewardOnEnter(){
+  if(REWARD_STATE.initing||REWARD_STATE.initDone)return;
+  REWARD_STATE.initing=true;
+  try{
+    await rwEnsureReady();
+    await rwRequestAndPreload();
+    REWARD_STATE.initDone=true;
+    rwLog('init preload done');
+    if(typeof window.resetAdLock==='function')window.resetAdLock();
+  }catch(e){
+    const stage=e&&e.detail&&e.detail.stage?e.detail.stage:'';
+    const desc=document.getElementById('unlockDesc');
+    const count=document.getElementById('unlockCount');
+    if(desc)desc.textContent='预加载失败，点击重试';
+    if(count)count.textContent=(e&&e.code?e.code:'REWARD_INIT_FAILED')+(stage?(' ['+stage+']'):'')+'：'+(e&&e.message?e.message:'未知错误');
+    rwLog('init preload fail',{code:e&&e.code,message:e&&e.message,stage:stage});
+  }finally{
+    REWARD_STATE.initing=false;
+  }
+}
+
+function stopUnlockCountdown(){
+  if(REWARD_STATE.unlockTimer){
+    clearInterval(REWARD_STATE.unlockTimer);
+    REWARD_STATE.unlockTimer=null;
+  }
+}
+
+function unlockAllContent(){
+  stopUnlockCountdown();
+  REWARD_STATE.unlocking=false;
+  REWARD_STATE.unlocked=true;
+  const wrap=document.getElementById('unlockWrap');
+  const desc=document.getElementById('unlockDesc');
+  const count=document.getElementById('unlockCount');
+  const btn=document.getElementById('unlockBtn');
+  if(wrap)wrap.classList.add('unlocked');
+  if(desc)desc.textContent='已解锁全部内容';
+  if(count)count.textContent='';
+  if(btn){btn.disabled=true;btn.textContent='已解锁';}
+  if(typeof toast==='function')toast('已解锁全部内容');
+}
+
+function startUnlockCountdown(sec){
+  stopUnlockCountdown();
+  let left=sec;
+  const count=document.getElementById('unlockCount');
+  const desc=document.getElementById('unlockDesc');
+  const btn=document.getElementById('unlockBtn');
+  if(desc)desc.textContent='视频观看中，达到 8s 后自动解锁';
+  if(btn){btn.disabled=true;btn.textContent='观看中...';}
+  if(count)count.textContent='剩余 '+left+'s';
+  REWARD_STATE.unlockTimer=setInterval(()=>{
+    left-=1;
+    if(count)count.textContent='剩余 '+Math.max(left,0)+'s';
+    if(left<=0)unlockAllContent();
+  },1000);
+}
+
+async function unlockByAd(){
+  if(REWARD_STATE.unlocked||REWARD_STATE.unlocking)return;
+  const btn=document.getElementById('unlockBtn');
+  const desc=document.getElementById('unlockDesc');
+  const count=document.getElementById('unlockCount');
+  try{
+    REWARD_STATE.unlocking=true;
+    if(btn){btn.disabled=true;btn.textContent='加载视频...';}
+    if(desc)desc.textContent='正在拉起激励视频，请稍候';
+    if(count)count.textContent='';
+    await rwEnsureReady();
+    await rwShowWithCachedOrRequest();
+    startUnlockCountdown(8);
+    initRewardOnEnter();
+  }catch(e){
+    const stage=e&&e.detail&&e.detail.stage?e.detail.stage:'';
+    REWARD_STATE.unlocking=false;
+    if(btn){btn.disabled=false;btn.textContent='看激励视频解锁';}
+    if(desc)desc.textContent='视频拉起失败，请稍后重试';
+    if(count)count.textContent=(e&&e.code?e.code:'REWARD_UNLOCK_FAILED')+(stage?(' ['+stage+']'):'')+'：'+(e&&e.message?e.message:'未知错误');
+    if(typeof toast==='function')toast('激励视频拉起失败');
+    rwLog('unlock fail',{code:e&&e.code,message:e&&e.message,stage:stage});
+  }
+}
+
+function resetAdLock(){
+  stopUnlockCountdown();
+  REWARD_STATE.unlocking=false;
+  REWARD_STATE.unlocked=false;
+  const wrap=document.getElementById('unlockWrap');
+  const btn=document.getElementById('unlockBtn');
+  const desc=document.getElementById('unlockDesc');
+  const count=document.getElementById('unlockCount');
+  if(!wrap)return;
+  wrap.classList.remove('unlocked');
+  if(btn){btn.disabled=false;btn.textContent='看激励视频解锁';}
+  if(desc){
+    if(rwHasFreshPayload()&&REWARD_STATE.preloadWeak){
+      desc.textContent='预加载回调超时，点击将直接尝试拉起视频';
+    }else{
+      desc.textContent=rwHasFreshPayload()?'视频已预加载，点击即可观看':'进入页面已尝试预加载，点击即可观看';
+    }
+  }
+  if(count)count.textContent='需观看 8s 后解锁';
+}
+
+window.unlockByAd=unlockByAd;
+window.resetAdLock=resetAdLock;
+window.addEventListener('load',function(){
+  initRewardOnEnter();
+  setTimeout(initRewardOnEnter,1200);
+  setTimeout(initRewardOnEnter,3000);
+});
+window.addEventListener('pageshow',function(){
+  if(!REWARD_STATE.initDone)initRewardOnEnter();
+});
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&!REWARD_STATE.initDone){
+    initRewardOnEnter();
+  }
+});
+</script>
+</body>
+</html>
