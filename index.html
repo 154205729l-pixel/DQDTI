@@ -322,7 +322,9 @@ const REWARD_STATE={
   unlockTimer:null,
   unlocking:false,
   unlocked:false,
-  preloadWeak:false
+  preloadWeak:false,
+  watchStartedAt:0,
+  requiredWatchMs:8000
 };
 
 function rwLog(title,data){
@@ -614,6 +616,7 @@ function unlockAllContent(){
   stopUnlockCountdown();
   REWARD_STATE.unlocking=false;
   REWARD_STATE.unlocked=true;
+  REWARD_STATE.watchStartedAt=0;
   const wrap=document.getElementById('unlockWrap');
   const desc=document.getElementById('unlockDesc');
   const count=document.getElementById('unlockCount');
@@ -625,20 +628,44 @@ function unlockAllContent(){
   if(typeof toast==='function')toast('已解锁全部内容');
 }
 
-function startUnlockCountdown(sec){
-  stopUnlockCountdown();
-  let left=sec;
+function getUnlockRemainingSeconds(){
+  if(!REWARD_STATE.watchStartedAt)return Math.ceil(REWARD_STATE.requiredWatchMs/1000);
+  const elapsed=Date.now()-REWARD_STATE.watchStartedAt;
+  const remainMs=Math.max(REWARD_STATE.requiredWatchMs-elapsed,0);
+  return Math.ceil(remainMs/1000);
+}
+
+function tryUnlockByElapsed(){
+  if(!REWARD_STATE.unlocking||REWARD_STATE.unlocked||!REWARD_STATE.watchStartedAt)return false;
+  if(Date.now()-REWARD_STATE.watchStartedAt>=REWARD_STATE.requiredWatchMs){
+    unlockAllContent();
+    return true;
+  }
+  return false;
+}
+
+function refreshUnlockProgressUI(){
   const count=document.getElementById('unlockCount');
   const desc=document.getElementById('unlockDesc');
   const btn=document.getElementById('unlockBtn');
+  const left=getUnlockRemainingSeconds();
   if(desc)desc.textContent='视频观看中，达到 8s 后自动解锁';
   if(btn){btn.disabled=true;btn.textContent='观看中...';}
   if(count)count.textContent='剩余 '+left+'s';
+}
+
+function startUnlockCountdown(sec){
+  stopUnlockCountdown();
+  const expectedMs=Math.max(Number(sec)||8,1)*1000;
+  REWARD_STATE.requiredWatchMs=expectedMs;
+  if(!REWARD_STATE.watchStartedAt){
+    REWARD_STATE.watchStartedAt=Date.now();
+  }
+  refreshUnlockProgressUI();
   REWARD_STATE.unlockTimer=setInterval(()=>{
-    left-=1;
-    if(count)count.textContent='剩余 '+Math.max(left,0)+'s';
-    if(left<=0)unlockAllContent();
-  },1000);
+    if(tryUnlockByElapsed())return;
+    refreshUnlockProgressUI();
+  },250);
 }
 
 async function unlockByAd(){
@@ -651,12 +678,18 @@ async function unlockByAd(){
     if(btn){btn.disabled=true;btn.textContent='加载视频...';}
     if(desc)desc.textContent='正在拉起激励视频，请稍候';
     if(count)count.textContent='';
+
     await rwEnsureReady();
-    await rwShowWithCachedOrRequest();
+
+    REWARD_STATE.watchStartedAt=Date.now();
     startUnlockCountdown(8);
+
+    await rwShowWithCachedOrRequest();
     initRewardOnEnter();
   }catch(e){
     const stage=e&&e.detail&&e.detail.stage?e.detail.stage:'';
+    stopUnlockCountdown();
+    REWARD_STATE.watchStartedAt=0;
     REWARD_STATE.unlocking=false;
     if(btn){btn.disabled=false;btn.textContent='看激励视频解锁';}
     if(desc)desc.textContent='视频拉起失败，请稍后重试';
@@ -670,6 +703,7 @@ function resetAdLock(){
   stopUnlockCountdown();
   REWARD_STATE.unlocking=false;
   REWARD_STATE.unlocked=false;
+  REWARD_STATE.watchStartedAt=0;
   const wrap=document.getElementById('unlockWrap');
   const btn=document.getElementById('unlockBtn');
   const desc=document.getElementById('unlockDesc');
@@ -696,10 +730,16 @@ window.addEventListener('load',function(){
 });
 window.addEventListener('pageshow',function(){
   if(!REWARD_STATE.initDone)initRewardOnEnter();
+  if(REWARD_STATE.unlocking){
+    if(!tryUnlockByElapsed())refreshUnlockProgressUI();
+  }
 });
 document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='visible'&&!REWARD_STATE.initDone){
-    initRewardOnEnter();
+  if(document.visibilityState==='visible'){
+    if(!REWARD_STATE.initDone)initRewardOnEnter();
+    if(REWARD_STATE.unlocking){
+      if(!tryUnlockByElapsed())refreshUnlockProgressUI();
+    }
   }
 });
 </script>
